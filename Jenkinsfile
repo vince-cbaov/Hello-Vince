@@ -1,13 +1,9 @@
 pipeline {
     agent any
 
-    options {
-        timestamps()
-    }
-
     environment {
-        IMAGE_NAME = "hello-vince"
-        IMAGE_TAG  = "latest"
+        APP_SERVER = "vinadmin@20.123.4.115"
+        IMAGE_NAME = "hello-vince:latest"
     }
 
     stages {
@@ -20,39 +16,31 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                echo 'Building Docker image for Hello-Vince...'
-                sh '''
-                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                '''
+                sh 'docker build -t $IMAGE_NAME .'
             }
         }
 
-        stage('Verify Image') {
+        stage('Deploy to App Server') {
             steps {
-                echo 'Verifying Docker image...'
-                sh '''
-                    docker images | grep ${IMAGE_NAME}
-                '''
-            }
-        }
-
-        stage('Test (placeholder)') {
-            steps {
-                echo 'Running tests (placeholder)...'
-                echo 'No tests defined yet'
+                sshagent(['app-server-ssh']) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no $APP_SERVER '
+                        docker stop hello-vince || true
+                        docker rm hello-vince || true
+                        docker run -d --name hello-vince -p 80:80 $IMAGE_NAME
+                    '
+                    """
+                }
             }
         }
     }
 
     post {
         success {
-            echo ' Pipeline completed successfully'
+            echo " App deployed successfully"
         }
         failure {
-            echo ' Pipeline failed'
-        }
-        always {
-            echo 'Pipeline finished'
+            echo " Deployment failed"
         }
     }
 }
