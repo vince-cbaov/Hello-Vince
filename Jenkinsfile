@@ -6,6 +6,8 @@ pipeline {
     }
 
     environment {
+        IMAGE_NAME = "hello-vince"
+        IMAGE_TAG  = "latest"
         APP_SERVER = "vinadmin@20.123.4.115"
         APP_NAME   = "hello-vince"
     }
@@ -15,6 +17,40 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        stage('Unit Tests (pytest)') {
+            steps {
+                echo 'Running Python unit tests...'
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install -r requirements.txt
+                    pytest
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                sh '''
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                '''
+            }
+        }
+
+        stage('Container Health Check') {
+            steps {
+                echo 'Starting container for health check...'
+                sh '''
+                    docker rm -f healthcheck || true
+                    docker run -d --name healthcheck -p 8080:80 ${IMAGE_NAME}:${IMAGE_TAG}
+                    sleep 5
+                    curl -f http://localhost:8080 || exit 1
+                    docker rm -f healthcheck
+                '''
             }
         }
 
@@ -36,15 +72,17 @@ pipeline {
                 }
             }
         }
-
     }
 
     post {
         success {
-            echo ' Deployment completed successfully'
+            echo ' CI/CD pipeline completed successfully'
         }
         failure {
-            echo ' Deployment failed'
+            echo ' CI/CD pipeline failed'
+        }
+        always {
+            echo 'Pipeline finished'
         }
     }
 }
