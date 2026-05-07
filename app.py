@@ -3,7 +3,7 @@ from PIL import Image, ImageTk
 
 def main():
     root = tk.Tk()
-    root.title("Test Repo")
+    root.title("Hello World App")
     root.geometry("300x200")
 
     container = tk.Frame(root)
