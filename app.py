@@ -10,14 +10,14 @@ def main():
     container.pack(expand=True)
 
     image = Image.open("assets/globe.png")
-    image = image.resize((64, 64))
+    image = image.resize((64,64))
     photo = ImageTk.PhotoImage(image)
 
     icon = tk.Label(container, image=photo)
     icon.image = photo  # prevents garbage collection
     icon.pack(pady=5)
 
-    text = tk.Label(container, text="Hello, World!", font=("Arial", 20))
+    text = tk.Label(container, text="Hello, World!", font=("Arial", 28))
     text.pack()
 
     root.mainloop()
