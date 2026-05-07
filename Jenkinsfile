@@ -5,6 +5,11 @@ pipeline {
         timestamps()
     }
 
+    environment {
+        IMAGE_NAME = "hello-vince"
+        IMAGE_TAG  = "latest"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -13,14 +18,25 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Building Hello-Vince project...'
-                sh 'ls -la'
+                echo 'Building Docker image for Hello-Vince...'
+                sh '''
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                '''
             }
         }
 
-        stage('Test') {
+        stage('Verify Image') {
+            steps {
+                echo 'Verifying Docker image...'
+                sh '''
+                    docker images | grep ${IMAGE_NAME}
+                '''
+            }
+        }
+
+        stage('Test (placeholder)') {
             steps {
                 echo 'Running tests (placeholder)...'
                 echo 'No tests defined yet'
