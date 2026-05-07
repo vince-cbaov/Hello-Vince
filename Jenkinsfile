@@ -1,9 +1,14 @@
 pipeline {
     agent any
 
+    options {
+        timestamps()
+    }
+
     environment {
+        IMAGE_NAME = "hello-vince"
+        IMAGE_TAG  = "latest"
         APP_SERVER = "vinadmin@20.123.4.115"
-        IMAGE_NAME = "hello-vince:latest"
     }
 
     stages {
@@ -16,36 +21,35 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                echo 'Building Docker image on Jenkins...'
+                sh '''
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                '''
             }
         }
 
-       stage('Deploy to App Server') {
-        steps {
-            sshagent(['app-server-ssh']) {
-                sh '''
-                ssh -o StrictHostKeyChecking=no vinadmin@20.123.4.115 '
-                    cd /tmp &&
-                    rm -rf hello-vince &&
-                    git clone https://github.com/vince-cbaov/Hello-Vince.git hello-vince &&
-                    cd hello-vince &&
-                    docker stop hello-vince || true &&
-                    docker rm hello-vince || true &&
-                    docker build -t hello-vince:latest . &&
-                    docker run -d --name hello-vince -p 80:80 hello-vince:latest
-                '
-                '''
+        stage('Deploy to App Server') {
+            steps {
+                sshagent(['app-server-ssh']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ${APP_SERVER} "
+                            docker stop hello-vince || true
+                            docker rm hello-vince || true
+                            docker build -t hello-vince:latest /tmp/hello-vince || true
+                            docker run -d --name hello-vince -p 80:80 hello-vince:latest
+                        "
+                    '''
+                }
             }
         }
     }
 
-
     post {
         success {
-            echo " App deployed successfully"
+            echo ' Pipeline completed successfully'
         }
         failure {
-            echo " Deployment failed"
+            echo ' Pipeline failed'
         }
     }
 }
