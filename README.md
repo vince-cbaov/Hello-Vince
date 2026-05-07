@@ -84,7 +84,7 @@ Then click `index.html`, or go directly to:
 You should see:
 
 *   The globe icon
-*   The text **“Hello, Vince!”**
+*   The text **“Hello, World!”**
 *   Content centered on a white background
 
 To stop the server, press **Ctrl + C** in the terminal.
