@@ -28,18 +28,21 @@ pipeline {
             }
         }
 
-        stage('Deploy to App Server') {
-            steps {
-                sshagent(['app-server-ssh']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ${APP_SERVER} "
-                            docker stop hello-vince || true
-                            docker rm hello-vince || true
-                            docker build -t hello-vince:latest /tmp/hello-vince || true
-                            docker run -d --name hello-vince -p 80:80 hello-vince:latest
-                        "
-                    '''
-                }
+      stage('Deploy to App Server') {
+        steps {
+            sshagent(['app-server-ssh']) {
+                sh '''
+                ssh -o StrictHostKeyChecking=no vinadmin@20.123.4.115 "
+                    set -e
+                    rm -rf /tmp/hello-vince
+                    git clone https://github.com/vince-cbaov/Hello-Vince.git /tmp/hello-vince
+                    cd /tmp/hello-vince
+                    docker stop hello-vince || true
+                    docker rm hello-vince || true
+                    docker build -t hello-vince:latest .
+                    docker run -d --name hello-vince -p 80:80 hello-vince:latest
+                "
+                '''
             }
         }
     }
