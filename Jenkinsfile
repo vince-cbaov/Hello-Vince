@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        APP_SERVER = "ubuntu@APP_SERVER_IP"
+        APP_SERVER = "vinadmin@20.123.4.115"
         IMAGE_NAME = "hello-vince:latest"
     }
 
