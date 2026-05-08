@@ -7,26 +7,26 @@ locals {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "Hello-CICD-rg"
+  name     = "Hello-rg"
   location = var.location
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "Hello-CICD-vnet"
+  name                = "Hello-vnet"
   address_space       = ["10.0.0.0/16"]
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
 resource "azurerm_subnet" "subnet" {
-  name                 = "Hello-CICD-subnet"
+  name                 = "Hello-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
 }
 
 resource "azurerm_network_security_group" "nsg" {
-  name                = "Hello-CICD-nsg"
+  name                = "Hello-nsg"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
 
