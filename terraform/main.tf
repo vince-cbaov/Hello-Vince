@@ -1,3 +1,11 @@
+data "http" "my_ip" {
+  url = "https://api.ipify.org"
+}
+
+locals {
+  admin_ip = "${trimspace(data.http.my_ip.response_body)}/32"
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = "Hello-CICD-rg"
   location = var.location
@@ -30,7 +38,7 @@ resource "azurerm_network_security_group" "nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = "*"
+    source_address_prefix      = var.admin_ip
     destination_address_prefix = "*"
   }
 
@@ -42,7 +50,7 @@ resource "azurerm_network_security_group" "nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "8080"
-    source_address_prefix      = "*"
+    source_address_prefix      = var.admin_ip
     destination_address_prefix = "*"
   }
 
@@ -54,7 +62,7 @@ resource "azurerm_network_security_group" "nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "80"
-    source_address_prefix      = "*"
+    source_address_prefix      = var.admin_ip
     destination_address_prefix = "*"
   }
 }
