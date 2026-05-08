@@ -38,7 +38,7 @@ resource "azurerm_network_security_group" "nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = locals.admin_ip
+    source_address_prefix      = local.admin_ip
     destination_address_prefix = "*"
   }
 
@@ -50,7 +50,7 @@ resource "azurerm_network_security_group" "nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "8080"
-    source_address_prefix      = locals.admin_ip
+    source_address_prefix      = local.admin_ip
     destination_address_prefix = "*"
   }
 
@@ -62,7 +62,7 @@ resource "azurerm_network_security_group" "nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "80"
-    source_address_prefix      = locals.admin_ip
+    source_address_prefix      = local.admin_ip
     destination_address_prefix = "*"
   }
 }
