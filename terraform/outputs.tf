@@ -1,7 +1,7 @@
 output "jenkins_public_ip" {
-  value = azurerm_public_ip.jenkins.ip_address
+  value = module.jenkins_vm.public_ip
 }
 
 output "app_public_ip" {
-  value = azurerm_public_ip.app.ip_address
+  value = module.app_vm.public_ip
 }
