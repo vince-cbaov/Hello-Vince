@@ -58,13 +58,12 @@ pipeline {
         /* ---------- HEALTH CHECK ---------- */
         stage('Container Health Check') {
             steps {
-                echo 'Starting container for health check...'
-                sh '''
-                    docker rm -f healthcheck || true
-                    docker run -d --name healthcheck -p 18080:80 ${IMAGE_NAME}:${IMAGE_TAG}
-                    sleep 5
-                    curl -f http://localhost:18080
-                    docker rm -f healthcheck
+                    sh '''
+                        docker rm -f healthcheck || true
+                        docker run -d --name healthcheck -p ${APP_PORT}:80 ${IMAGE_NAME}:${IMAGE_TAG}
+                        sleep 5
+                        curl -f http://localhost:${APP_PORT}
+                        docker rm -f healthcheck
                 '''
             }
         }
