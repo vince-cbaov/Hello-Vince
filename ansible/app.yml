@@ -27,4 +27,4 @@
     - name: Allow HTTP
       ufw:
         rule: allow
-        port: 80
+        port: 801
