@@ -75,22 +75,25 @@ pipeline {
             steps {
                 sshagent(['app-server-ssh']) {
                     sh '''
-                      ssh -o StrictHostKeyChecking=no vinadmin@${APP_SERVER} '
+                    ssh -o StrictHostKeyChecking=no vinadmin@${APP_SERVER} '
                         set -e
+                        APP_NAME=hello-vince
+
                         rm -rf /tmp/hello-vince
                         git clone https://github.com/vince-cbaov/Hello-Vince.git /tmp/hello-vince
                         cd /tmp/hello-vince
-                        docker stop ${APP_NAME} || true
-                        docker rm ${APP_NAME} || true
-                        docker build -t ${APP_NAME}:latest .
-                        docker run -d --name ${APP_NAME} -p 80:80 ${APP_NAME}:latest
-                      '
+
+                        docker stop $APP_NAME || true
+                        docker rm $APP_NAME || true
+                        docker build -t $APP_NAME:latest .
+                        docker run -d --name $APP_NAME -p 80:80 $APP_NAME:latest
+                    '
                     '''
                 }
             }
         }
     }
-
+    
     post {
         success {
             echo ' CI/CD pipeline completed successfully'
