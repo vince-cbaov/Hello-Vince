@@ -46,9 +46,9 @@ pipeline {
                 echo 'Starting container for health check...'
                 sh '''
                     docker rm -f healthcheck || true
-                    docker run -d --name healthcheck -p 8080:80 ${IMAGE_NAME}:${IMAGE_TAG}
+                    docker run -d --name healthcheck -p 18080:80 ${IMAGE_NAME}:${IMAGE_TAG}
                     sleep 5
-                    curl -f http://localhost:8080 || exit 1
+                    curl -f http://localhost:18080 || exit 1
                     docker rm -f healthcheck
                 '''
             }

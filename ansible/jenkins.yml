@@ -2,25 +2,44 @@
   become: yes
 
   tasks:
-    - name: Update system
+    # This playbook sets up a Jenkins server on a Debian-based system.
+    # Base system
+    - name: Update system packages
       apt:
         update_cache: yes
         upgrade: dist
 
+    # Java (required by Jenkins)
     - name: Install Java 21
       apt:
         name: openjdk-21-jdk
         state: present
 
-    - name: Add Jenkins key
+    # Python tooling (CI dependency)
+    - name: Install Python venv and pip
+      apt:
+        name:
+          - python3-venv
+          - python3-pip
+        state: present
+
+    - name: Verify Python venv works
+      command: python3 -m venv /tmp/test-venv
+      args:
+        creates: /tmp/test-venv
+
+    # Jenkins installation
+    - name: Add Jenkins GPG key
       get_url:
         url: https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
         dest: /usr/share/keyrings/jenkins-keyring.asc
+        mode: '0644'
 
-    - name: Add Jenkins repo
+    - name: Add Jenkins repository
       apt_repository:
         repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
         state: present
+        filename: jenkins
 
     - name: Install Jenkins
       apt:
@@ -28,12 +47,13 @@
         state: present
         update_cache: yes
 
-    - name: Enable Jenkins
+    - name: Enable and start Jenkins
       systemd:
         name: jenkins
         enabled: yes
         state: started
 
+    # Docker (for builds & deployments)
     - name: Install Docker
       apt:
         name: docker.io
@@ -51,7 +71,8 @@
         groups: docker
         append: yes
 
-    - name: Allow Jenkins port
+    # Firewall configuration
+    - name: Allow Jenkins port 8080
       ufw:
         rule: allow
         port: 8080
