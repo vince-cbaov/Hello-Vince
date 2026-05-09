@@ -8,7 +8,7 @@ pipeline {
     environment {
         IMAGE_NAME = "hello-vince"
         IMAGE_TAG  = "latest"
-        APP_SERVER = "app_vm_01"
+        APP_SERVER = "app_server_ip_or_hostname"
         APP_NAME   = "hello-vince"
     }
 
@@ -58,7 +58,7 @@ pipeline {
             steps {
                 sshagent(['app-server-ssh']) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${APP_SERVER} '
+                        ssh -o StrictHostKeyChecking=no vinadmin@${APP_SERVER_IP} '
                             set -e
                             rm -rf /tmp/hello-vince
                             git clone https://github.com/vince-cbaov/Hello-Vince.git /tmp/hello-vince
