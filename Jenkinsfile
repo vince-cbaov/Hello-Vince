@@ -1,41 +1,28 @@
 pipeline {
     agent any
 
-    /* ---------- PARAMETERS (rebuild-safe) ---------- */
-    parameters {
-        string(
-            name: 'APP_SERVER',
-            defaultValue: '',
-            description: 'App server IP or DNS name (from Terraform output)'
-        )
-    }
-
     options {
         timestamps()
     }
 
-    /* ---------- STATIC ENVIRONMENT VALUES ---------- */
     environment {
         IMAGE_NAME = "hello-vince"
         IMAGE_TAG  = "latest"
-        APP_NAME   = "hello-vince"
 
+        // main → 80, others → 8081
         APP_PORT = "${BRANCH_NAME == 'main' ? '80' : '8081'}"
     }
 
     stages {
 
-        /* ---------- CHECKOUT ---------- */
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        /* ---------- TESTS ---------- */
         stage('Unit Tests (pytest)') {
             steps {
-                echo 'Running Python unit tests...'
                 sh '''
                     python3 -m venv venv
                     . venv/bin/activate
@@ -45,17 +32,14 @@ pipeline {
             }
         }
 
-        /* ---------- BUILD ---------- */
         stage('Build Docker Image') {
             steps {
-                echo 'Building Docker image...'
                 sh '''
                     docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                 '''
             }
         }
 
-        /* ---------- HEALTH CHECK ---------- */
         stage('Container Health Check') {
             steps {
                 sh '''
@@ -68,16 +52,14 @@ pipeline {
             }
         }
 
-
-        /* ---------- DEPLOY ---------- */
-       stage('Deploy to App Server') {
+        stage('Deploy to App Server') {
             when {
-                expression { params.APP_SERVER?.trim() }
+                expression { env.BRANCH_NAME?.trim() }
             }
             steps {
                 sshagent(['app-server-ssh']) {
                     sh """
-                    ssh -o StrictHostKeyChecking=no vinadmin@${APP_SERVER} '
+                      ssh -o StrictHostKeyChecking=no vinadmin@${APP_SERVER} '
                         set -e
                         APP_NAME=hello-vince
                         BRANCH_NAME=${BRANCH_NAME}
@@ -93,15 +75,16 @@ pipeline {
                         docker build -t \$APP_NAME:latest .
 
                         docker run -d \
-                        --name \$APP_NAME-\$BRANCH_NAME \
-                        -p \$APP_PORT:80 \
-                        \$APP_NAME:latest
-                    '
+                          --name \$APP_NAME-\$BRANCH_NAME \
+                          -p \$APP_PORT:80 \
+                          \$APP_NAME:latest
+                      '
                     """
                 }
             }
         }
-    
+    }
+
     post {
         success {
             echo ' CI/CD pipeline completed successfully'
