@@ -45,8 +45,20 @@ pipeline {
                 sh '''
                     docker rm -f healthcheck || true
                     docker run -d --name healthcheck ${IMAGE_NAME}:${IMAGE_TAG}
-                    sleep 5
+
+                    echo "Waiting for container to become ready..."
+
+                    for i in {1..10}; do
+                        if docker exec healthcheck wget -qO- http://localhost >/dev/null 2>&1; then
+                            echo " Container is healthy"
+                            break
+                        fi
+                        echo " Not ready yet (attempt $i)..."
+                        sleep 2
+                    done
+
                     docker exec healthcheck wget -qO- http://localhost
+
                     docker rm -f healthcheck
                 '''
             }
