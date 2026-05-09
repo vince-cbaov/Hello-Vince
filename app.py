@@ -17,7 +17,7 @@ def main():
     icon.image = photo  # prevents garbage collection
     icon.pack(pady=5)
 
-    text = tk.Label(container, text="Hello, World!", font=("Arial", 28))
+    text = tk.Label(container, text="Doom!", font=("Arial", 28))
     text.pack()
 
     root.mainloop()
