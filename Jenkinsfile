@@ -19,6 +19,8 @@ pipeline {
         IMAGE_NAME = "hello-vince"
         IMAGE_TAG  = "latest"
         APP_NAME   = "hello-vince"
+
+        APP_PORT = "${BRANCH_NAME == 'main' ? '80' : '8081'}"
     }
 
     stages {
