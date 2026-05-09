@@ -8,7 +8,7 @@ pipeline {
     environment {
         IMAGE_NAME = "hello-vince"
         IMAGE_TAG  = "latest"
-        APP_SERVER = "vinadmin@20.123.4.115"
+        APP_SERVER = "app_vm_01"
         APP_NAME   = "hello-vince"
     }
 
