@@ -56,44 +56,50 @@ pipeline {
         }
 
         /* ---------- HEALTH CHECK ---------- */
-        stage('Container Health Check') {
+       stage('Container Health Check') {
             steps {
-                    sh '''
-                        docker rm -f healthcheck || true
-                        docker run -d --name healthcheck -p ${APP_PORT}:80 ${IMAGE_NAME}:${IMAGE_TAG}
-                        sleep 5
-                        curl -f http://localhost:${APP_PORT}
-                        docker rm -f healthcheck
+                sh '''
+                    docker rm -f healthcheck || true
+                    docker run -d --name healthcheck ${IMAGE_NAME}:${IMAGE_TAG}
+                    sleep 5
+                    docker exec healthcheck wget -qO- http://localhost
+                    docker rm -f healthcheck
                 '''
             }
         }
 
         /* ---------- DEPLOY ---------- */
-        stage('Deploy to App Server') {
+       stage('Deploy to App Server') {
             when {
                 expression { params.APP_SERVER?.trim() }
             }
             steps {
                 sshagent(['app-server-ssh']) {
-                    sh '''
+                    sh """
                     ssh -o StrictHostKeyChecking=no vinadmin@${APP_SERVER} '
                         set -e
                         APP_NAME=hello-vince
+                        BRANCH_NAME=${BRANCH_NAME}
+                        APP_PORT=${APP_PORT}
 
                         rm -rf /tmp/hello-vince
                         git clone https://github.com/vince-cbaov/Hello-Vince.git /tmp/hello-vince
                         cd /tmp/hello-vince
 
-                        docker stop $APP_NAME || true
-                        docker rm $APP_NAME || true
-                        docker build -t $APP_NAME:latest .
-                        docker run -d --name ${APP_NAME}-${BRANCH_NAME} -p ${APP_PORT}:80 ${APP_NAME}:latest
+                        docker stop \$APP_NAME-\$BRANCH_NAME || true
+                        docker rm \$APP_NAME-\$BRANCH_NAME || true
+
+                        docker build -t \$APP_NAME:latest .
+
+                        docker run -d \
+                        --name \$APP_NAME-\$BRANCH_NAME \
+                        -p \$APP_PORT:80 \
+                        \$APP_NAME:latest
                     '
-                    '''
+                    """
                 }
             }
         }
-    }
     
     post {
         success {
