@@ -65,7 +65,19 @@ resource "azurerm_network_security_group" "nsg" {
     source_address_prefix      = local.admin_ip
     destination_address_prefix = "*"
   }
-}
+
+  security_rule {
+      name                       = "AllowHTTP2"
+      priority                   = 130
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range     = "8081"
+      source_address_prefix      = local.admin_ip
+      destination_address_prefix = "*"
+  }
+} 
 
 module "jenkins_vm" {
   source              = "./modules/linux-vm"
