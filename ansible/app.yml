@@ -1,0 +1,30 @@
+- hosts: app
+  become: yes
+
+  tasks:
+    - name: Update system
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Enable Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Add user to docker group
+      user:
+        name: vinadmin
+        groups: docker
+        append: yes
+
+    - name: Allow HTTP
+      ufw:
+        rule: allow
+        port: 80
