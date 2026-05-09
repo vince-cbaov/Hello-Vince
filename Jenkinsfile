@@ -56,7 +56,7 @@ pipeline {
         }
 
         /* ---------- HEALTH CHECK ---------- */
-       stage('Container Health Check') {
+        stage('Container Health Check') {
             steps {
                 sh '''
                     docker rm -f healthcheck || true
@@ -67,6 +67,7 @@ pipeline {
                 '''
             }
         }
+
 
         /* ---------- DEPLOY ---------- */
        stage('Deploy to App Server') {
