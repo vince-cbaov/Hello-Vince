@@ -49,7 +49,7 @@ pipeline {
                     echo "Waiting for Docker healthcheck to report healthy..."
 
                     i=1
-                    while [ $i -le 130 ]; do
+                    while [ $i -le 35 ]; do
                         status=$(docker inspect --format='{{.State.Health.Status}}' healthcheck || echo "unknown")
                         echo "Health status: $status"
 
