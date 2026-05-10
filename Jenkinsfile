@@ -46,20 +46,30 @@ pipeline {
                     docker rm -f healthcheck || true
                     docker run -d --name healthcheck ${IMAGE_NAME}:${IMAGE_TAG}
 
-                    echo "Waiting for container to become ready..."
+                    echo "Waiting for Docker healthcheck to report healthy..."
 
                     i=1
-                    while [ $i -le 10 ]; do
-                        if docker exec healthcheck wget -qO- http://localhost >/dev/null 2>&1; then
+                    while [ $i -le 15 ]; do
+                        status=$(docker inspect --format='{{.State.Health.Status}}' healthcheck || echo "unknown")
+                        echo "Health status: $status"
+
+                        if [ "$status" = "healthy" ]; then
                             echo " Container is healthy"
                             break
                         fi
-                        echo " Not ready yet (attempt $i)"
-                        i=$((i+1))
+
                         sleep 2
+                        i=$((i+1))
                     done
 
-                    docker exec healthcheck wget -qO- http://localhost
+                    status=$(docker inspect --format='{{.State.Health.Status}}' healthcheck)
+                    if [ "$status" != "healthy" ]; then
+                        echo " Container never became healthy"
+                        docker logs healthcheck
+                        docker rm -f healthcheck
+                        exit 1
+                    fi
+
                     docker rm -f healthcheck
                 '''
             }
