@@ -95,9 +95,11 @@ pipeline {
                         APP_NAME=${IMAGE_NAME}
                         CONTAINER_NAME=${CONTAINER_NAME}
                         APP_PORT=${APP_PORT}
+                        BRANCH_NAME=${BRANCH_NAME}
 
                         rm -rf /tmp/hello-vince
-                        git clone https://github.com/vince-cbaov/Hello-Vince.git /tmp/hello-vince
+                        git clone --branch \$BRANCH_NAME \
+                        https://github.com/vince-cbaov/Hello-Vince.git /tmp/hello-vince
                         cd /tmp/hello-vince
 
                         docker stop \$CONTAINER_NAME || true
@@ -106,9 +108,9 @@ pipeline {
                         docker build -t \$APP_NAME:latest .
 
                         docker run -d \
-                          --name \$CONTAINER_NAME \
-                          -p \$APP_PORT:80 \
-                          \$APP_NAME:latest
+                        --name \$CONTAINER_NAME \
+                        -p \$APP_PORT:80 \
+                        \$APP_NAME:latest
                     '
                     """
                 }
