@@ -46,16 +46,19 @@ pipeline {
                     docker rm -f healthcheck || true
                     docker run -d --name healthcheck hello-vince:latest
 
-                    # wait up to 30 seconds for nginx
+                    # Wait up to 30 seconds for nginx to be ready
                     for i in {1..15}; do
                     if docker exec healthcheck wget -qO- http://localhost >/dev/null 2>&1; then
-                        echo "Container healthy"
+                        echo "Container is healthy"
                         break
                     fi
+                    echo "Waiting for nginx..."
                     sleep 2
                     done
 
+                    # Final hard check (this one is allowed to fail)
                     docker exec healthcheck wget -qO- http://localhost
+
                     docker rm -f healthcheck
                 '''
             }
