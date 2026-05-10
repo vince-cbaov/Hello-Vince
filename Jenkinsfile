@@ -88,11 +88,11 @@ pipeline {
 
                         docker stop $APP_NAME || true
                         docker rm $APP_NAME || true
-                        docker build -t $APP_NAME:latest .
-                        docker run -d --name ${APP_NAME}-${BRANCH_NAME} \
-                          -p 80:80 \
-                          ${APP_NAME}:latest
 
+                        docker run -d \
+                        --name $APP_NAME \
+                        -p 80:80 \
+                        $APP_NAME:latest
                     '
                     '''
                 }
