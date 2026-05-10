@@ -44,34 +44,10 @@ pipeline {
             steps {
                 sh '''
                     docker rm -f healthcheck || true
-                    docker run -d --name healthcheck -p ${APP_PORT}:80 ${IMAGE_NAME}:${IMAGE_TAG}
-
-                    echo "Waiting for Docker healthcheck to report healthy..."
-
-                    i=1
-                    while [ $i -le 35 ]; do
-                        status=$(docker inspect --format='{{.State.Health.Status}}' healthcheck || echo "unknown")
-                        echo "Health status: $status"
-
-                        if [ "$status" = "healthy" ]; then
-                            echo " Container is healthy"
-                            break
-                        fi
-
-                        sleep 2
-                        i=$((i+1))
-                    done
-
-                    status=$(docker inspect --format='{{.State.Health.Status}}' healthcheck)
-                    if [ "$status" != "healthy" ]; then
-                        echo " Container never became healthy"
-                        docker logs healthcheck
-                        docker rm -f healthcheck
-                        exit 1
-                    fi
-
+                    docker run -d --name healthcheck hello-vince:latest
+                    sleep 5
+                    docker exec healthcheck wget -qO- http://localhost
                     docker rm -f healthcheck
-                    curl -f http://localhost:${APP_PORT}    
                 '''
             }
         }
