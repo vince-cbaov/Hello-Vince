@@ -84,6 +84,8 @@ pipeline {
                         git clone https://github.com/vince-cbaov/Hello-Vince.git /tmp/hello-vince
                         cd /tmp/hello-vince
 
+                        APP_NAME=hello-vince
+
                         docker stop $APP_NAME || true
                         docker rm $APP_NAME || true
                         docker build -t $APP_NAME:latest .
