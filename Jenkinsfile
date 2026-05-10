@@ -62,26 +62,29 @@ pipeline {
         stage('Container Health Check') {
             steps {
                 sh '''
-                    docker rm -f healthcheck || true
+                    HC_CONTAINER="healthcheck-${BUILD_ID}"
+
+                    docker rm -f $HC_CONTAINER || true
+
                     docker run -d \
-                      --name healthcheck \
-                      -p ${APP_PORT}:80 \
-                      ${IMAGE_NAME}:${IMAGE_TAG}
+                    --name $HC_CONTAINER \
+                    -p ${APP_PORT}:80 \
+                    ${IMAGE_NAME}:${IMAGE_TAG}
 
                     echo "Waiting for app on port ${APP_PORT}..."
 
                     for i in {1..15}; do
-                      if curl -fs http://localhost:${APP_PORT} > /dev/null; then
+                    if curl -fs http://localhost:${APP_PORT} > /dev/null; then
                         echo "Container is healthy"
                         break
-                      fi
-                      sleep 2
+                    fi
+                    sleep 2
                     done
 
-                    # Final hard check (this one defines success/failure)
+                    # final assertion
                     curl -fs http://localhost:${APP_PORT}
 
-                    docker rm -f healthcheck
+                    docker rm -f $HC_CONTAINER
                 '''
             }
         }
