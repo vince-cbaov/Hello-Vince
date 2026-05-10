@@ -13,13 +13,19 @@ pipeline {
 
     stages {
 
-        stage('Init') {
+       stage('Init') {
             steps {
                 script {
                     if (env.BRANCH_NAME == 'main') {
                         env.APP_PORT = '80'
                         env.CONTAINER_NAME = env.IMAGE_NAME
                         env.ENVIRONMENT = 'prod'
+
+                    } else if (env.BRANCH_NAME == 'dev') {
+                        env.APP_PORT = '8082'
+                        env.CONTAINER_NAME = "${env.IMAGE_NAME}-dev"
+                        env.ENVIRONMENT = 'dev'
+
                     } else {
                         env.APP_PORT = '8081'
                         env.CONTAINER_NAME = "${env.IMAGE_NAME}-${env.BRANCH_NAME}"
