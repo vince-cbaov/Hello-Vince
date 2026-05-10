@@ -44,7 +44,7 @@ pipeline {
             steps {
                 sh '''
                     docker rm -f healthcheck || true
-                    docker run -d --name healthcheck ${IMAGE_NAME}:${IMAGE_TAG}
+                    docker run -d --name healthcheck -p ${APP_PORT}:80 ${IMAGE_NAME}:${IMAGE_TAG}
 
                     echo "Waiting for Docker healthcheck to report healthy..."
 
@@ -71,6 +71,7 @@ pipeline {
                     fi
 
                     docker rm -f healthcheck
+                    curl -f http://localhost:${APP_PORT}    
                 '''
             }
         }
