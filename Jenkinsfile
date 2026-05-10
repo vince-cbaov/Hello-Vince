@@ -48,17 +48,18 @@ pipeline {
 
                     echo "Waiting for container to become ready..."
 
-                    for i in {1..10}; do
+                    i=1
+                    while [ $i -le 10 ]; do
                         if docker exec healthcheck wget -qO- http://localhost >/dev/null 2>&1; then
                             echo " Container is healthy"
                             break
                         fi
-                        echo " Not ready yet (attempt $i)..."
+                        echo " Not ready yet (attempt $i)"
+                        i=$((i+1))
                         sleep 2
                     done
 
                     docker exec healthcheck wget -qO- http://localhost
-
                     docker rm -f healthcheck
                 '''
             }
