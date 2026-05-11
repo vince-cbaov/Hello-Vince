@@ -15,24 +15,26 @@ pipeline {
 
        stage('Init') {
             steps {
-                script {
-                    if (env.BRANCH_NAME == 'main') {
-                        env.APP_PORT = '80'
-                        env.CONTAINER_NAME = env.IMAGE_NAME
-                        env.ENVIRONMENT = 'prod'
+               script {
+                if (env.BRANCH_NAME == 'main') {
+                    env.APP_PORT = '80'
+                    env.CONTAINER_NAME = env.IMAGE_NAME
+                    env.ENVIRONMENT = 'prod'
 
-                    } else if (env.BRANCH_NAME == 'dev') {
-                        env.APP_PORT = '8082'
-                        env.CONTAINER_NAME = "${env.IMAGE_NAME}-dev"
-                        env.ENVIRONMENT = 'dev'
+                } else if (env.BRANCH_NAME == 'Dev') {
+                    env.APP_PORT = '8081'
+                    env.CONTAINER_NAME = "${env.IMAGE_NAME}-Dev"
+                    env.ENVIRONMENT = 'dev'
 
-                    } else {
-                        env.APP_PORT = '8081'
-                        env.CONTAINER_NAME = "${env.IMAGE_NAME}-${env.BRANCH_NAME}"
-                        env.ENVIRONMENT = 'feature'
-                    }
+                } else if (env.BRANCH_NAME == 'Feature-A') {
+                    env.APP_PORT = '8082'
+                    env.CONTAINER_NAME = "${env.IMAGE_NAME}-Feature-A"
+                    env.ENVIRONMENT = 'feature'
+
+                } else {
+                    error "No port assigned for branch ${env.BRANCH_NAME}"
                 }
-
+            }
                 echo "Branch: ${env.BRANCH_NAME}"
                 echo "Environment: ${env.ENVIRONMENT}"
                 echo "Container: ${env.CONTAINER_NAME}"
